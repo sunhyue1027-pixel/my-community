@@ -1,25 +1,31 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 
 import PageLayout from '../components/common/page-layout';
 import CategoryMenu from '../components/post/category-menu';
 import PostCard from '../components/post/post-card';
+import ScheduleDialog from '../components/schedule/schedule-dialog';
+import ScheduleList from '../components/schedule/schedule-list';
 import EmptyState from '../components/ui/empty-state';
 import LoadingView from '../components/ui/loading-view';
 import MiniCalendar from '../components/ui/mini-calendar';
 import SidePanel from '../components/ui/side-panel';
 import { useAuth } from '../hooks/use-auth';
+import { useSchedules } from '../hooks/use-schedules';
 import { supabase } from '../lib/supabase';
 import { CATEGORIES, SORT_OPTIONS, getCategory } from '../utils/constants';
+import { formatDate, toDateKey } from '../utils/date-utils';
 
 /** 정렬 기준 함수 모음 */
 const byCreated = (a, b) => new Date(b.created_at) - new Date(a.created_at);
@@ -51,6 +57,27 @@ function PostListPage() {
   const [sort, setSort] = useState('latest');
   const [query, setQuery] = useState('');
   const [date, setDate] = useState(null);
+  const [dialogKey, setDialogKey] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [todayKey] = useState(() => toDateKey(new Date()));
+  const navigate = useNavigate();
+  const { schedules, addSchedule, toggleSchedule, removeSchedule } = useSchedules(profile?.id);
+
+  /** + 버튼: 로그인 상태면 일정 입력 창을 열고, 아니면 로그인 페이지로 이동 */
+  const handleOpenDialog = () => {
+    if (!profile) {
+      navigate('/login');
+      return;
+    }
+    setDialogKey((k) => k + 1);
+    setIsDialogOpen(true);
+  };
+
+  /** 선택한 날짜(없으면 오늘)의 내 일정 */
+  const daySchedules = useMemo(
+    () => schedules.filter((s) => s.schedule_date === (date ?? todayKey)),
+    [schedules, date, todayKey],
+  );
 
   useEffect(() => {
     supabase
@@ -64,14 +91,14 @@ function PostListPage() {
       });
   }, []);
 
-  /** 캘린더에 표시할 일정 날짜 */
+  /** 캘린더에 표시할 일정 날짜 (게시물 일정 + 내 개인 일정) */
   const marks = useMemo(() => {
     const result = {};
-    posts.forEach((p) => {
-      if (p.schedule_date) result[p.schedule_date] = (result[p.schedule_date] ?? 0) + 1;
+    [...posts, ...schedules].forEach((item) => {
+      if (item.schedule_date) result[item.schedule_date] = (result[item.schedule_date] ?? 0) + 1;
     });
     return result;
-  }, [posts]);
+  }, [posts, schedules]);
 
   /** 카테고리별 게시물 수 */
   const counts = useMemo(() => {
@@ -99,7 +126,27 @@ function PostListPage() {
       <Grid container spacing={ 3.5 }>
         <Grid size={ { xs: 12, md: 3 } } sx={ { order: { xs: 2, md: 1 } } }>
           <Box sx={ { display: 'flex', flexDirection: 'column', gap: 2, position: { md: 'sticky' }, top: { md: 88 } } }>
-            <SidePanel title="캘린더">
+            <SidePanel
+              title="캘린더"
+              action={ (
+                <Tooltip title="일정 추가">
+                  <IconButton
+                    size="small"
+                    onClick={ handleOpenDialog }
+                    aria-label="일정 추가"
+                    sx={ {
+                      width: 28,
+                      height: 28,
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      '&:hover': { bgcolor: 'primary.dark' },
+                    } }
+                  >
+                    <AddIcon sx={ { fontSize: 18 } } />
+                  </IconButton>
+                </Tooltip>
+              ) }
+            >
               <MiniCalendar marks={ marks } selected={ date } onSelect={ setDate } />
               <Box sx={ { fontSize: 12.5, color: 'text.secondary', mt: 1.25 } }>
                 { date ? (
@@ -107,8 +154,16 @@ function PostListPage() {
                     📌 { date } 일정만 보는 중
                     <Button size="small" onClick={ () => setDate(null) } sx={ { minWidth: 0, ml: 0.5, py: 0 } }>해제</Button>
                   </>
-                ) : '파란 점이 있는 날짜를 눌러 일정을 확인하세요' }
+                ) : '점이 있는 날짜를 눌러 일정을 확인하세요' }
               </Box>
+              { profile && (
+                <Box sx={ { mt: 1.75, pt: 1.75, borderTop: 1, borderColor: 'divider' } }>
+                  <Box sx={ { fontSize: 12.5, fontWeight: 700, color: 'text.secondary', mb: 1 } }>
+                    { date ? `${formatDate(date)} 내 일정` : '오늘 내 일정' }
+                  </Box>
+                  <ScheduleList schedules={ daySchedules } onToggle={ toggleSchedule } onRemove={ removeSchedule } />
+                </Box>
+              ) }
             </SidePanel>
             <SidePanel title="카테고리">
               <CategoryMenu selected={ category } counts={ counts } onSelect={ setCategory } />
@@ -195,6 +250,14 @@ function PostListPage() {
           ) }
         </Grid>
       </Grid>
+
+      <ScheduleDialog
+        key={ dialogKey }
+        isOpen={ isDialogOpen }
+        defaultDate={ date ?? todayKey }
+        onClose={ () => setIsDialogOpen(false) }
+        onSubmit={ addSchedule }
+      />
     </PageLayout>
   );
 }
