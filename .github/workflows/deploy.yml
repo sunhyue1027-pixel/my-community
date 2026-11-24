@@ -12,14 +12,12 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  # 1) 빌드: Vite 앱을 빌드해서 dist 폴더를 아티팩트로 업로드
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,6 +39,15 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: './dist'
+
+  # 2) 배포: 업로드된 아티팩트를 GitHub Pages에 배포
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
