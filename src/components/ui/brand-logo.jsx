@@ -44,7 +44,7 @@ function BrandLogo({ size = 20 }) {
             left: '25%',
             borderRadius: '50%',
             bgcolor: '#fff',
-            boxShadow: `${mark * 0.12}px -${mark * 0.08}px 0 0 #1E3A6E inset`,
+            boxShadow: `${mark * 0.12}px -${mark * 0.08}px 0 0 #2A4F8F inset`,
           },
         } }
       />

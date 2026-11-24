@@ -35,7 +35,7 @@ function PostCard({ post }) {
         '&:hover': {
           transform: 'translateY(-2px)',
           borderColor: '#C5D0E3',
-          boxShadow: '0 10px 28px rgba(30, 58, 110, 0.12)',
+          boxShadow: '0 10px 28px rgba(42, 79, 143, 0.12)',
         },
       } }
     >

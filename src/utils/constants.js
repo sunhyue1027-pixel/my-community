@@ -2,7 +2,7 @@
  * 카테고리 목록 (DB category 값 ↔ 화면 표시)
  */
 export const CATEGORIES = [
-  { value: 'schedule', label: '일정관리', icon: '🗓️', color: '#1E3A6E' },
+  { value: 'schedule', label: '일정관리', icon: '🗓️', color: '#2A4F8F' },
   { value: 'spending', label: '소비기록', icon: '💳', color: '#0E9F9E' },
   { value: 'selfcare', label: '자기관리', icon: '🌱', color: '#7C5CFF' },
   { value: 'diary', label: '다이어리', icon: '📔', color: '#D9578F' },

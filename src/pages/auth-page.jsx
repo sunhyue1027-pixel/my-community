@@ -115,7 +115,7 @@ function AuthPage() {
         <Grid size={ { xs: 12, md: 5 } }>
           <Paper
             variant="outlined"
-            sx={ { p: { xs: 3, md: 4 }, borderRadius: 5, boxShadow: '0 20px 60px rgba(30, 58, 110, 0.1)' } }
+            sx={ { p: { xs: 3, md: 4 }, borderRadius: 5, boxShadow: '0 20px 60px rgba(42, 79, 143, 0.1)' } }
           >
             <Tabs
               value={ tab }

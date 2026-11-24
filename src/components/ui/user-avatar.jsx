@@ -18,7 +18,7 @@ function UserAvatar({ name = '?', size = 32 }) {
         height: size,
         fontSize: size * 0.42,
         fontWeight: 700,
-        background: 'linear-gradient(135deg, #5A78AE, #142A52)',
+        background: 'linear-gradient(135deg, #5A78AE, #1E3A6E)',
       } }
     >
       { name?.[0] ?? '?' }
