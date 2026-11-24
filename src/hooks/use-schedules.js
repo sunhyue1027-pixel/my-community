@@ -29,17 +29,17 @@ export function useSchedules(userId) {
     if (!userId) return;
     supabase
       .from('schedules')
-      .select('id, title, schedule_date, start_time, is_done')
+      .select('id, title, category, schedule_date, start_time, is_done')
       .eq('user_id', userId)
       .then(({ data }) => setState({ ownerId: userId, list: sortSchedules(data ?? []) }));
   }, [userId]);
 
   /** 일정 추가 - 성공 시 null, 실패 시 에러 메시지 반환 */
-  const addSchedule = useCallback(async ({ title, scheduleDate, startTime }) => {
+  const addSchedule = useCallback(async ({ title, category, scheduleDate, startTime }) => {
     const { data, error } = await supabase
       .from('schedules')
-      .insert({ user_id: userId, title, schedule_date: scheduleDate, start_time: startTime || null })
-      .select('id, title, schedule_date, start_time, is_done')
+      .insert({ user_id: userId, title, category, schedule_date: scheduleDate, start_time: startTime || null })
+      .select('id, title, category, schedule_date, start_time, is_done')
       .single();
     if (error) return '일정을 저장하지 못했어요.';
     setSchedules((prev) => sortSchedules([...prev, data]));

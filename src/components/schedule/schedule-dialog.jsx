@@ -8,6 +8,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 
+import ScheduleCategoryFilter from './schedule-category-filter';
+
 /**
  * ScheduleDialog 컴포넌트 - 새 일정을 입력하는 창
  * 열릴 때마다 key를 바꿔서 마운트하면 입력값이 초기화된다.
@@ -15,14 +17,16 @@ import TextField from '@mui/material/TextField';
  * Props:
  * @param {boolean} isOpen - 창 열림 여부 [Required]
  * @param {string} defaultDate - 처음 채워질 날짜 'YYYY-MM-DD' [Required]
+ * @param {string} defaultCategory - 처음 선택될 카테고리 값 [Optional, 기본값: 'schedule']
  * @param {function} onClose - 닫기 시 실행 [Required]
- * @param {function} onSubmit - 저장 시 실행, { title, scheduleDate, startTime }을 받아 에러 메시지(또는 null)를 반환 [Required]
+ * @param {function} onSubmit - 저장 시 실행, { title, category, scheduleDate, startTime }을 받아 에러 메시지(또는 null)를 반환 [Required]
  *
  * Example usage:
  * <ScheduleDialog isOpen={ isOpen } defaultDate="2026-11-24" onClose={ close } onSubmit={ addSchedule } />
  */
-function ScheduleDialog({ isOpen, defaultDate, onClose, onSubmit }) {
+function ScheduleDialog({ isOpen, defaultDate, defaultCategory = 'schedule', onClose, onSubmit }) {
   const [title, setTitle] = useState('');
+  const [category, setCategory] = useState(defaultCategory);
   const [scheduleDate, setScheduleDate] = useState(defaultDate);
   const [startTime, setStartTime] = useState('');
   const [error, setError] = useState('');
@@ -35,7 +39,7 @@ function ScheduleDialog({ isOpen, defaultDate, onClose, onSubmit }) {
       return;
     }
     setIsSaving(true);
-    const message = await onSubmit({ title: title.trim(), scheduleDate, startTime });
+    const message = await onSubmit({ title: title.trim(), category, scheduleDate, startTime });
     setIsSaving(false);
     if (message) setError(message);
     else onClose();
@@ -56,6 +60,10 @@ function ScheduleDialog({ isOpen, defaultDate, onClose, onSubmit }) {
             fullWidth
             slotProps={ { htmlInput: { maxLength: 100 } } }
           />
+          <Box>
+            <Box sx={ { fontSize: 13, fontWeight: 600, color: 'text.secondary', mb: 1 } }>카테고리</Box>
+            <ScheduleCategoryFilter selected={ category } onSelect={ setCategory } />
+          </Box>
           <Box sx={ { display: 'flex', gap: 1.5 } }>
             <TextField
               label="날짜"

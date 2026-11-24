@@ -12,7 +12,7 @@ const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
  * MiniCalendar 컴포넌트 - 일정이 있는 날짜에 점을 찍어 보여주는 월간 캘린더
  *
  * Props:
- * @param {object} marks - { 'YYYY-MM-DD': 개수 } 일정 표시 날짜 [Optional, 기본값: {}]
+ * @param {object} marks - { 'YYYY-MM-DD': 개수 또는 색상 배열 } 일정 표시 날짜 (배열이면 색 점으로 표시) [Optional, 기본값: {}]
  * @param {string} selected - 선택된 날짜 키 [Optional]
  * @param {function} onSelect - 날짜 클릭 시 실행 (없으면 읽기 전용) [Optional]
  * @param {Date} initialDate - 처음 보여줄 달 [Optional, 기본값: 오늘]
@@ -70,7 +70,10 @@ function MiniCalendar({ marks = {}, selected, onSelect, initialDate }) {
           const key = toDateKey(date);
           const isToday = key === todayKey;
           const isSelected = key === selected;
-          const hasMark = Boolean(marks[key]);
+          // marks 값이 색상 배열이면 카테고리 색 점(최대 3개), 숫자면 기본 점 1개
+          const mark = marks[key];
+          const dotColors = Array.isArray(mark) ? [...new Set(mark)].slice(0, 3) : [];
+          const hasMark = Boolean(mark) && dotColors.length === 0;
 
           return (
             <Box
@@ -106,6 +109,33 @@ function MiniCalendar({ marks = {}, selected, onSelect, initialDate }) {
               } }
             >
               { date.getDate() }
+              { dotColors.length > 0 && (
+                <Box
+                  component="span"
+                  sx={ {
+                    position: 'absolute',
+                    bottom: 3,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    gap: '2px',
+                  } }
+                >
+                  { dotColors.map((color) => (
+                    <Box
+                      component="span"
+                      key={ color }
+                      sx={ {
+                        width: 5,
+                        height: 5,
+                        borderRadius: '50%',
+                        bgcolor: color,
+                        boxShadow: isSelected ? '0 0 0 1px #fff' : 'none',
+                      } }
+                    />
+                  )) }
+                </Box>
+              ) }
             </Box>
           );
         }) }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,6 +15,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import PageLayout from '../components/common/page-layout';
 import CategoryMenu from '../components/post/category-menu';
 import PostCard from '../components/post/post-card';
+import ScheduleCategoryFilter from '../components/schedule/schedule-category-filter';
 import ScheduleDialog from '../components/schedule/schedule-dialog';
 import ScheduleList from '../components/schedule/schedule-list';
 import EmptyState from '../components/ui/empty-state';
@@ -59,6 +60,7 @@ function PostListPage() {
   const [date, setDate] = useState(null);
   const [dialogKey, setDialogKey] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [scheduleFilter, setScheduleFilter] = useState('all');
   const [todayKey] = useState(() => toDateKey(new Date()));
   const navigate = useNavigate();
   const { schedules, addSchedule, toggleSchedule, removeSchedule } = useSchedules(profile?.id);
@@ -73,11 +75,21 @@ function PostListPage() {
     setIsDialogOpen(true);
   };
 
-  /** 선택한 날짜(없으면 오늘)의 내 일정 */
-  const daySchedules = useMemo(
-    () => schedules.filter((s) => s.schedule_date === (date ?? todayKey)),
-    [schedules, date, todayKey],
+  /** 캘린더 카테고리 필터에 맞는 항목인지 */
+  const matchesFilter = useCallback(
+    (item) => scheduleFilter === 'all' || item.category === scheduleFilter,
+    [scheduleFilter],
   );
+
+  /** 선택한 날짜(없으면 오늘)의 내 일정 + 카테고리별 개수 */
+  const { daySchedules, dayCounts } = useMemo(() => {
+    const ofDay = schedules.filter((s) => s.schedule_date === (date ?? todayKey));
+    const result = { all: ofDay.length };
+    ofDay.forEach((s) => {
+      result[s.category] = (result[s.category] ?? 0) + 1;
+    });
+    return { daySchedules: ofDay.filter(matchesFilter), dayCounts: result };
+  }, [schedules, date, todayKey, matchesFilter]);
 
   useEffect(() => {
     supabase
@@ -91,14 +103,15 @@ function PostListPage() {
       });
   }, []);
 
-  /** 캘린더에 표시할 일정 날짜 (게시물 일정 + 내 개인 일정) */
+  /** 캘린더에 표시할 일정 날짜별 카테고리 색 (게시물 일정 + 내 개인 일정, 캘린더 필터 적용) */
   const marks = useMemo(() => {
     const result = {};
-    [...posts, ...schedules].forEach((item) => {
-      if (item.schedule_date) result[item.schedule_date] = (result[item.schedule_date] ?? 0) + 1;
+    [...posts, ...schedules].filter(matchesFilter).forEach((item) => {
+      if (!item.schedule_date) return;
+      result[item.schedule_date] = [...(result[item.schedule_date] ?? []), getCategory(item.category).color];
     });
     return result;
-  }, [posts, schedules]);
+  }, [posts, schedules, matchesFilter]);
 
   /** 카테고리별 게시물 수 */
   const counts = useMemo(() => {
@@ -147,6 +160,9 @@ function PostListPage() {
                 </Tooltip>
               ) }
             >
+              <Box sx={ { mb: 1.5 } }>
+                <ScheduleCategoryFilter selected={ scheduleFilter } onSelect={ setScheduleFilter } hasAll />
+              </Box>
               <MiniCalendar marks={ marks } selected={ date } onSelect={ setDate } />
               <Box sx={ { fontSize: 12.5, color: 'text.secondary', mt: 1.25 } }>
                 { date ? (
@@ -161,7 +177,16 @@ function PostListPage() {
                   <Box sx={ { fontSize: 12.5, fontWeight: 700, color: 'text.secondary', mb: 1 } }>
                     { date ? `${formatDate(date)} 내 일정` : '오늘 내 일정' }
                   </Box>
-                  <ScheduleList schedules={ daySchedules } onToggle={ toggleSchedule } onRemove={ removeSchedule } />
+                  <ScheduleList
+                    schedules={ daySchedules }
+                    onToggle={ toggleSchedule }
+                    onRemove={ removeSchedule }
+                    emptyMessage={
+                      scheduleFilter === 'all'
+                        ? undefined
+                        : `${getCategory(scheduleFilter).label} 일정이 없어요${dayCounts.all ? ` (전체 ${dayCounts.all}개)` : ''}`
+                    }
+                  />
                 </Box>
               ) }
             </SidePanel>
@@ -255,6 +280,7 @@ function PostListPage() {
         key={ dialogKey }
         isOpen={ isDialogOpen }
         defaultDate={ date ?? todayKey }
+        defaultCategory={ scheduleFilter === 'all' ? 'schedule' : scheduleFilter }
         onClose={ () => setIsDialogOpen(false) }
         onSubmit={ addSchedule }
       />
