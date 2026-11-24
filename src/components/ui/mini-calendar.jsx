@@ -58,7 +58,7 @@ function MiniCalendar({ marks = {}, selected, onSelect, initialDate }) {
               fontSize: 11,
               fontWeight: 600,
               py: 0.5,
-              color: i === 0 ? '#E5737A' : i === 6 ? '#6B93FF' : 'text.secondary',
+              color: i === 0 ? '#E5737A' : i === 6 ? '#5A78AE' : 'text.secondary',
             } }
           >
             { day }
@@ -90,7 +90,7 @@ function MiniCalendar({ marks = {}, selected, onSelect, initialDate }) {
                 bgcolor: isSelected ? 'primary.main' : 'transparent',
                 color: isSelected ? '#fff' : isToday ? 'primary.main' : 'text.primary',
                 fontWeight: isToday ? 800 : 400,
-                boxShadow: isToday && !isSelected ? 'inset 0 0 0 1.5px #C6D6FF' : 'none',
+                boxShadow: isToday && !isSelected ? 'inset 0 0 0 1.5px #C5D0E3' : 'none',
                 '&:hover': { bgcolor: isReadOnly || isSelected ? undefined : 'primary.light' },
                 '&::after': hasMark ? {
                   content: '""',

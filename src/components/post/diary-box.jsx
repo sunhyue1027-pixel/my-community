@@ -29,7 +29,7 @@ function DiaryBox({ scheduleDate, mood }) {
         borderRadius: 2.5,
         border: 1,
         borderColor: 'primary.light',
-        background: 'linear-gradient(135deg, #F1F5FF, #F7FAFF)',
+        background: 'linear-gradient(135deg, #EEF2F8, #F7F9FC)',
         overflow: 'hidden',
       } }
     >

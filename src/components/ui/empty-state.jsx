@@ -15,7 +15,7 @@ function EmptyState({ message, children }) {
     <Box
       sx={ {
         bgcolor: 'background.paper',
-        border: '1px dashed #C6D6FF',
+        border: '1px dashed #C5D0E3',
         borderRadius: 3.5,
         py: 7,
         px: 3,

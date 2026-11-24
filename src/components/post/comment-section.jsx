@@ -92,7 +92,7 @@ function CommentSection({ postId, postAuthorId }) {
           </Button>
         </Box>
       ) : (
-        <Box sx={ { bgcolor: '#F1F5FF', borderRadius: 2.5, p: 1.75, fontSize: 14, color: 'text.secondary', textAlign: 'center' } }>
+        <Box sx={ { bgcolor: '#EEF2F8', borderRadius: 2.5, p: 1.75, fontSize: 14, color: 'text.secondary', textAlign: 'center' } }>
           <Box component={ RouterLink } to="/login" sx={ { color: 'primary.main', fontWeight: 700 } }>로그인</Box>하고 댓글을 남겨보세요.
         </Box>
       ) }

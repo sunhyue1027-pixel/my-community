@@ -1,22 +1,22 @@
 import { createTheme } from '@mui/material/styles';
 
 /**
- * MO:ON 테마 - 깔끔하고 정돈된 블루 + 화이트
+ * MO:ON 테마 - 깔끔하고 정돈된 네이비 + 화이트
  */
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2F6BFF',
-      light: '#E3EBFF',
-      dark: '#1F55E0',
+      main: '#1E3A6E',
+      light: '#E4EAF4',
+      dark: '#142A52',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#12285E',
+      main: '#0E1E3D',
       contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F6F8FC',
+      default: '#F4F6FA',
       paper: '#FFFFFF',
     },
     text: {

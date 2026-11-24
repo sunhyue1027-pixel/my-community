@@ -34,8 +34,8 @@ function PostCard({ post }) {
         transition: 'transform 0.15s, box-shadow 0.15s, border-color 0.15s',
         '&:hover': {
           transform: 'translateY(-2px)',
-          borderColor: '#C6D6FF',
-          boxShadow: '0 10px 28px rgba(47, 107, 255, 0.12)',
+          borderColor: '#C5D0E3',
+          boxShadow: '0 10px 28px rgba(30, 58, 110, 0.12)',
         },
       } }
     >
